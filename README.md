@@ -1,38 +1,39 @@
-# max3skladvv
+# 📦 Warehouse Management System (Enterprise Grade)
 
-This template should help get you started developing with Vue 3 in Vite.
+Современная Fullstack-система складского учета, мигрированная с платформы .NET на стек **Java 25 (LTS)** и **Vue 3**. Проект реализован с соблюдением корпоративных стандартов безопасности и принципов **SOLID**.
 
-## Recommended IDE Setup
+## 🛠 Технологический стек
+*   **Backend:** Java 25, Spring Boot 3.5, Spring Data JPA.
+*   **Security:** Spring Security + JWT (JSON Web Token), BCrypt хэширование паролей.
+*   **Database:** PostgreSQL (Hibernate ORM с автоматической миграцией схем).
+*   **Frontend:** Vue 3 (Composition API), Axios Interceptors, Bootstrap 5, Vue Router.
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+## 🌟 Ключевые архитектурные решения (SOLID)
+*   **S (Single Responsibility):** Бизнес-логика вынесена в сервисный слой (`GoodRestService`). Контроллеры отвечают только за REST-эндпоинты.
+*   **O (Open/Closed):** Система отчетов расширяема без изменения базового кода благодаря универсальным методам фильтрации.
+*   **D (Dependency Inversion):** Активное использование Spring IoC/DI для слабой связанности компонентов.
 
-## Customize configuration
+## 🔐 Безопасность и управление персоналом
+Реализован модуль управления пользователями, адаптированный под регламенты **госучреждений**:
+1.  **Централизованная регистрация:** Администратор (`ROLE_ADMIN`) создает учетные записи сотрудников.
+2.  **Генерация паролей:** Бэкенд генерирует криптостойкие временные пароли через `UUID`.
+3.  **Первый вход:** Реализован механизм `needsPasswordChange` — принудительная смена временного пароля пользователем при первом входе.
+4.  **Stateless Auth:** Полная защита API через **JWT Filter**. Доступ к складам и товарам закрыт для неавторизованных запросов.
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+## 📊 Сложная бизнес-логика
+Реализован алгоритм расчета остатков ТМЦ в реальном времени:
+*   Учет первичных поступлений (`GoodIncomes`).
+*   Учет перемещений между складами (`GoodMoves`).
+*   Агрегация данных через **Java Streams** для высокой производительности.
+*   Транзакционная целостность при обновлении отчетов (`@Transactional`).
 
-## Project Setup
+## 🚀 Как запустить
+### Бэкенд:
+1. Сборка: `./mvnw clean package -DskipTests`
+2. Запуск: `java -jar target/java-api-0.0.1-SNAPSHOT.jar`
+*Автоматическая инициализация админа при первом запуске: admin / 123*
 
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
-
-
+### Фронтенд:
+1. `npm install`
+2. `npm run dev`
 
