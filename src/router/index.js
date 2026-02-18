@@ -5,8 +5,9 @@ import goodincomesComponent from '../components/goodincomesComponent.vue'
 import goodmovesComponent from '../components/goodmovesComponent.vue'
 import goodrestsComponent from '../components/goodrestsComponent.vue'
 import AboutView from '../views/AboutView.vue'
-// 1. Импортируйте ваш новый компонент логина (создадим его следующим шагом)
 import LoginComponent from '../components/LoginComponent.vue'
+// 1. Добавляем импорт нового компонента
+import UsersComponent from '../components/UsersComponent.vue'
 
 const routes = [
   {
@@ -39,6 +40,12 @@ const routes = [
     name: 'Goodrests',
     component: goodrestsComponent
   },
+  // 2. Регистрируем путь для управления сотрудниками
+  {
+    path: '/users',
+    name: 'Users',
+    component: UsersComponent
+  },
   {
     path: '/',
     name: 'About',
@@ -51,21 +58,17 @@ const router = createRouter({
   routes
 })
 
-// 2. Глобальный "охранник" (Navigation Guard)
-// Перед каждым переходом проверяем права доступа
+// Глобальный "охранник" остается без изменений
 router.beforeEach((to, from, next) => {
-  // Список страниц, куда можно заходить без пароля
   const publicPages = ['/login', '/']; 
   const authRequired = !publicPages.includes(to.path);
-  const loggedIn = localStorage.getItem('token'); // Проверяем наличие токена в браузере
+  const loggedIn = localStorage.getItem('token'); 
 
-  // Если страница требует авторизации, а токена нет — шлем на Login
   if (authRequired && !loggedIn) {
     return next('/login');
   }
 
-  next(); // В остальных случаях — разрешаем переход
+  next();
 });
 
 export default router
-
