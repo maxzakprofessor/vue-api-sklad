@@ -2,7 +2,7 @@
   <div class="container mt-4">
     <div class="card shadow-sm">
       <div class="card-header bg-primary text-white">
-        <h5><i class="bi bi-people-fill"></i> Управление сотрудниками (Госучреждение)</h5>
+        <h5><i class="bi bi-people-fill"></i> Управление сотрудниками</h5>
       </div>
       <div class="card-body">
         <!-- Форма создания -->
