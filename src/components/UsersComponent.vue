@@ -19,6 +19,7 @@
             <button @click="registerUser" class="btn btn-success w-100" :disabled="!newUser.username">
               Создать и выдать пароль
             </button>
+        
           </div>
         </div>
 
