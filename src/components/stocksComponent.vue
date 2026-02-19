@@ -1,246 +1,183 @@
 <template>
-<div>
+<div class="container-fluid mt-3">
+    <!-- Заголовок и кнопка добавления -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="text-primary fw-bold">Склады</h4>
+        <button type="button" class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#editModal" @click="addClick()">
+            Добавить склад
+        </button>
+    </div>
 
-<button type="button"
-class="btn btn-primary m-2 fload-end"
-data-bs-toggle="modal"
-data-bs-target="#exampleModal"
-@click="addClick()">
- Добавить склад
-</button>
+    <!-- Таблица с фильтрами и стрелками в один ряд -->
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table table-striped table-hover align-middle border">
+            <thead class="table-dark">
+                <tr>
+                    <th style="width: 30%;">
+                        <div class="d-flex align-items-center mb-1">
+                            <input class="form-control form-control-sm me-2 shadow-none" v-model="idFilter" v-on:keyup="FilterFn()" placeholder="🔍 ID">
+                            <div class="btn-group-vertical">
+                                <button type="button" class="btn btn-dark btn-xs p-0 px-1" @click="sortResult('id', true)">▲</button>
+                                <button type="button" class="btn btn-dark btn-xs p-0 px-1" @click="sortResult('id', false)">▼</button>
+                            </div>
+                        </div>
+                        <small class="ps-2">ID склада</small>
+                    </th>
+                    <th style="width: 50%;">
+                        <div class="d-flex align-items-center mb-1">
+                            <input class="form-control form-control-sm me-2 shadow-none" v-model="nameStockFilter" v-on:keyup="FilterFn()" placeholder="🔍 Поиск">
+                            <div class="btn-group-vertical">
+                                <button type="button" class="btn btn-dark btn-xs p-0 px-1" @click="sortResult('nameStock', true)">▲</button>
+                                <button type="button" class="btn btn-dark btn-xs p-0 px-1" @click="sortResult('nameStock', false)">▼</button>
+                            </div>
+                        </div>
+                        <small class="ps-2">Наименование склада</small>
+                    </th>
+                    <th class="text-center" style="width: 20%;">Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="acc in stocks" :key="acc.id">
+                    <td>{{acc.id}}</td>
+                    <td>{{acc.nameStock}}</td>
+                    <td class="text-center">
+                        <!-- Кнопка редактирования -->
+                        <button type="button" class="btn btn-light shadow-sm me-2" data-bs-toggle="modal" data-bs-target="#editModal" @click="editClick(acc)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                            </svg>
+                        </button>
+                        <!-- Кнопка удаления -->
+                        <button type="button" class="btn btn-light shadow-sm" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal" @click="prepareDelete(acc.id)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
-<table class="table table-striped">
-<thead>
-    <tr>
-        <th>
-            
-            <div class="d-flex flex-row">
-
-            <input class="form-control m-2"
-                v-model="idFilter"
-                v-on:keyup="FilterFn()"
-                placeholder="Filter">
-
-                <button type="button" class="btn btn-light"
-                @click="sortResult('id',true)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down-square-fill" viewBox="0 0 16 16">
-                <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4.5v5.793l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 1 1 .708-.708L7.5 10.293V4.5a.5.5 0 0 1 1 0z"/>
-                </svg>
-                </button>
-
-                <button type="button" class="btn btn-light"
-                @click="sortResult('id',false)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up-square-fill" viewBox="0 0 16 16">
-                <path d="M2 16a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2zm6.5-4.5V5.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 5.707V11.5a.5.5 0 0 0 1 0z"/>
-                </svg>
-                </button>
+    <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">{{modalTitle}}</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text w-25 bg-light fw-bold small">Название</span>
+                        <input type="text" class="form-control" v-model="nameStock">
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button @click="createClick()" v-if="id==0" class="btn btn-success btn-lg" data-bs-dismiss="modal">Создать</button>
+                        <button @click="updateClick()" v-if="id!=0" class="btn btn-warning btn-lg text-white" data-bs-dismiss="modal">Обновить</button>
+                    </div>
+                </div>
             </div>
-            id склада
-        </th>
-        <th>
-
-            <div class="d-flex flex-row">
-
-            <input class="form-control m-2"
-                v-model="nameStockFilter"
-                v-on:keyup="FilterFn()"
-                placeholder="Filter">
-                
-                <button type="button" class="btn btn-light"
-                @click="sortResult('nameStock',true)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down-square-fill" viewBox="0 0 16 16">
-                <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4.5v5.793l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 1 1 .708-.708L7.5 10.293V4.5a.5.5 0 0 1 1 0z"/>
-                </svg>
-                </button>
-
-                <button type="button" class="btn btn-light"
-                @click="sortResult('nameStock',false)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up-square-fill" viewBox="0 0 16 16">
-                <path d="M2 16a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2zm6.5-4.5V5.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 5.707V11.5a.5.5 0 0 0 1 0z"/>
-                </svg>
-                </button>
-
-            </div>
-            Наименование склада
-        </th>
-
-    </tr>
-</thead>
-<tbody>
-    <tr v-for="acc in stocks" v-bind:key="acc.id">
-        <td>{{acc.id}}</td>
-        <td>{{acc.nameStock}}</td>
-        <td>
-            <button type="button"
-            class="btn btn-light mr-1"
-            data-bs-toggle="modal"
-            data-bs-target="#exampleModal"
-            @click="editClick(acc)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
-                </svg>
-            </button>
-            <button type="button" @click="deleteClick(acc.id)"
-            class="btn btn-light mr-1">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
-                </svg>
-            </button>
-
-        </td>
-    </tr>
-</tbody>
-
-</table>
-
-<div class="modal fade" id="exampleModal" tabindex="-1"
-    aria-labelledby="exampleModalLabel" aria-hidden="true">
-<div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">{{modalTitle}}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                aria-label="Close"></button>
-            </div>
-
-        <div class="modal-body">
-
-            <div class="input-group mb-3">
-                <span class="input-group-text">Наименование склада</span>
-                <input type="text" class="form-control" v-model="nameStock">
-            </div>
-
-
-
-
-            <button type="button" @click="createClick()"
-                v-if="id==0" class="btn btn-primary">
-                Создать
-            </button>
-            <button type="button" @click="updateClick()"
-                v-if="id!=0" class="btn btn-primary">
-                Обновить
-            </button>
         </div>
+    </div>
 
+    <!-- МОДАЛЬНОЕ ОКНО УДАЛЕНИЯ -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-body text-center p-4">
+                    <div class="text-danger mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-exclamation-triangle" viewBox="0 0 16 16">
+                            <path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.16.16 0 0 1-.054.06.11.11 0 0 1-.066.017H1.146a.11.11 0 0 1-.066-.017.16.16 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073a.15.15 0 0 1 .054-.057zm1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566z"/>
+                            <path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995z"/>
+                        </svg>
+                    </div>
+                    <h5 class="fw-bold">Удалить склад?</h5>
+                    <div class="d-flex justify-content-center gap-2 mt-4">
+                        <button class="btn btn-light px-3" data-bs-dismiss="modal">Нет</button>
+                        <button class="btn btn-danger px-3" @click="confirmDelete" data-bs-dismiss="modal">Да</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-</div>
-
-
-</div>
-</template>   
+</template>
 
 <script>
-  import { API_URL, ENDPOINTS } from '../config';
+import { ENDPOINTS } from '../config';
 import axios from "axios";
 
 export default {
-  name: 'stocksComponent',
-
-  data(){
-    return{
-        stocks:[],
-        modalTitle:"",
-        nameStock:"",
-        NoRevenueExpense:"",
-        id:0,
-        nameStockFilter:"",
-        idFilter:"",
-        stocksWithoutFilter:[],
- //        API_URL:"https://localhost:7141/api/",
- //        API_URL:"http://127.0.0.1:8000/",
- //        API_URL:"https://mzakiryanovgmailcom.pythonanywhere.com/"
- //API_URL : import.meta.env.VITE_API_URL || "https://mzakiryanovgmailcom.pythonanywhere.com/",
-//API_URL : import.meta.env.VITE_API_URL || "https://sklad-backend-docker.onrender.com/",   
-//API_URL :import.meta.env.VITE_API_URL || "https://unpackaged-pentamerous-kristyn.ngrok-free.dev/",    
- //API_URL:"https://webapistockkz.azurewebsites.net/api/",
-
-    }
-},
-methods:{
-    refreshData(){
-        axios.get(ENDPOINTS.STOCKS)
-        .then((response)=>{
-            this.stocks=response.data;
-            this.stocksWithoutFilter=response.data;
-
-        });
-    },
-    addClick(){
-        this.modalTitle="Добавить склад";
-        this.nameStock="";
-        this.id=0;  
-
-    },
-    editClick(acc){
-        this.modalTitle="Отредактировать склад";
-        this.id=acc.id;
-        this.nameStock=acc.nameStock;
-
-    },
-    createClick(){
-        axios.post(ENDPOINTS.STOCKS,{
-            nameStock:this.nameStock,
-        })
-        .then((response)=>{
-            this.refreshData();
-            //alert(response.data);
-        });
-    },
-    updateClick(){
-        
-        axios.put(ENDPOINTS.STOCKS,{
-            id:this.id,
-            nameStock:this.nameStock,
-        })
-        .then((response)=>{
-            this.refreshData();
-            //alert(response.data);
-        });
-    },
-    deleteClick(id){
-        if(!confirm("Are you sure?")){
-            return;
+    name: 'stocksComponent',
+    data() {
+        return {
+            stocks: [],
+            stocksWithoutFilter: [],
+            modalTitle: "",
+            nameStock: "",
+            id: 0,
+            idFilter: "",
+            nameStockFilter: "",
+            idToDelete: 0
         }
-
-        axios.delete(ENDPOINTS.STOCKS+"/"+id)
-        .then((response)=>{
-            this.refreshData();
-            //alert(response.data);
-        });
-
     },
-    FilterFn(){
-        var idFilter=this.idFilter;
-        var nameStockFilter=this.nameStockFilter;
-
-        this.stocks=this.stocksWithoutFilter.filter(
-            function(el){
-                return el.id.toString().toLowerCase().includes(
-                    idFilter.toString().trim().toLowerCase()
-                )&&
-                el.nameStock.toString().toLowerCase().includes(
-                    nameStockFilter.toString().trim().toLowerCase()
-                )
+    methods: {
+        refreshData() {
+            axios.get(ENDPOINTS.STOCKS).then((res) => {
+                this.stocks = res.data;
+                this.stocksWithoutFilter = res.data;
             });
-    },
-    sortResult(prop,asc){
-        this.stocks=this.stocksWithoutFilter.sort(function(a,b){
-            if(asc){
-                return (a[prop]>b[prop])?1:((a[prop]<b[prop])?-1:0);
-            }
-            else{
-                return (b[prop]>a[prop])?1:((b[prop]<a[prop])?-1:0);
-            }
-        })
-    }
+        },
+        FilterFn() {
+            const idF = this.idFilter.toString().toLowerCase().trim();
+            const nameF = this.nameStockFilter.toLowerCase().trim();
 
-},
-mounted:function(){
-    this.refreshData();
-}  
+            this.stocks = this.stocksWithoutFilter.filter(el => {
+                return el.id.toString().toLowerCase().includes(idF) &&
+                       el.nameStock.toLowerCase().includes(nameF);
+            });
+        },
+        sortResult(prop, asc) {
+            this.stocks = [...this.stocksWithoutFilter].sort((a, b) => {
+                if (asc) return a[prop] > b[prop] ? 1 : -1;
+                return a[prop] < b[prop] ? 1 : -1;
+            });
+        },
+        addClick() {
+            this.modalTitle = "Добавить склад";
+            this.nameStock = "";
+            this.id = 0;
+        },
+        editClick(acc) {
+            this.modalTitle = "Отредактировать склад";
+            this.id = acc.id;
+            this.nameStock = acc.nameStock;
+        },
+        createClick() {
+            axios.post(ENDPOINTS.STOCKS, { nameStock: this.nameStock })
+                .then(() => this.refreshData());
+        },
+        updateClick() {
+            axios.put(ENDPOINTS.STOCKS, { id: this.id, nameStock: this.nameStock })
+                .then(() => this.refreshData());
+        },
+        prepareDelete(id) {
+            this.idToDelete = id;
+        },
+        confirmDelete() {
+            axios.delete(ENDPOINTS.STOCKS + "/" + this.idToDelete)
+                .then(() => this.refreshData());
+        }
+    },
+    mounted() {
+        this.refreshData();
+    }
 }
-    
-</script> 
+</script>
+
+<style scoped>
+.btn-xs { font-size: 0.65rem; }
+th { vertical-align: top; }
+</style>

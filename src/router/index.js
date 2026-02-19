@@ -6,7 +6,6 @@ import goodmovesComponent from '../components/goodmovesComponent.vue'
 import goodrestsComponent from '../components/goodrestsComponent.vue'
 import AboutView from '../views/AboutView.vue'
 import LoginComponent from '../components/LoginComponent.vue'
-// 1. Добавляем импорт нового компонента
 import UsersComponent from '../components/UsersComponent.vue'
 
 const routes = [
@@ -40,7 +39,6 @@ const routes = [
     name: 'Goodrests',
     component: goodrestsComponent
   },
-  // 2. Регистрируем путь для управления сотрудниками
   {
     path: '/users',
     name: 'Users',
@@ -58,17 +56,29 @@ const router = createRouter({
   routes
 })
 
-// Глобальный "охранник" остается без изменений
+/**
+ * Глобальный Navigation Guard (Охранник маршрутов)
+ * Реализует разграничение прав доступа (RBAC на минималках)
+ */
 router.beforeEach((to, from, next) => {
   const publicPages = ['/login', '/']; 
   const authRequired = !publicPages.includes(to.path);
-  const loggedIn = localStorage.getItem('token'); 
+  const loggedIn = localStorage.getItem('token');
+  const username = localStorage.getItem('username'); // Проверяем, кто зашел
 
+  // 1. Проверка авторизации
   if (authRequired && !loggedIn) {
     return next('/login');
   }
 
-  next();
+  // 2. Проверка прав администратора для раздела "Сотрудники"
+  // Если путь /users, а в системе НЕ admin — доступ запрещен
+  if (to.path === '/users' && username !== 'admin') {
+    console.warn("Попытка несанкционированного доступа к разделу пользователей!");
+    return next('/goods'); // Перенаправляем обычного юзера на список товаров
+  }
+
+  next(); // В остальных случаях — разрешаем переход
 });
 
 export default router
