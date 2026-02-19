@@ -90,7 +90,7 @@ export default {
       .then(response => {
         // --- ТЕСТОВЫЙ БЛОК ДЛЯ ПРОВЕРКИ ДАННЫХ ---
         console.log("Полный ответ сервера:", response.data);
-        alert("Данные из Java: " + JSON.stringify(response.data));
+        //alert("Данные из Java: " + JSON.stringify(response.data));
         // -----------------------------------------
 
         localStorage.setItem('token', response.data.token);
