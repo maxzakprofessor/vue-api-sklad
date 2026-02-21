@@ -8,7 +8,7 @@
         </button>
     </div>
 
-    <!-- Таблица с фильтрами и стрелками в один ряд -->
+    <!-- Таблица с фильтрами и стрелками -->
     <div class="table-responsive shadow-sm rounded">
         <table class="table table-striped table-hover align-middle border">
             <thead class="table-dark">
@@ -60,7 +60,7 @@
         </table>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ -->
+    <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ/СОЗДАНИЯ -->
     <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
@@ -106,7 +106,6 @@
 </template>
 
 <script>
-import { ENDPOINTS } from '../config';
 import axios from "axios";
 
 export default {
@@ -124,12 +123,72 @@ export default {
         }
     },
     methods: {
+        // Получение данных. ВАЖНО: Добавлен слеш в конце /
         refreshData() {
-            axios.get(ENDPOINTS.STOCKS).then((res) => {
-                this.stocks = res.data;
-                this.stocksWithoutFilter = res.data;
+            axios.get(`${import.meta.env.VITE_API_URL}/stocks/`)
+                .then((res) => {
+                    this.stocks = res.data;
+                    this.stocksWithoutFilter = res.data;
+                })
+                .catch(err => console.error("Ошибка загрузки:", err));
+        },
+
+        // Подготовка к созданию
+        addClick() {
+            this.modalTitle = "Добавить новый склад";
+            this.id = 0;
+            this.nameStock = "";
+        },
+
+        // Подготовка к редактированию
+        editClick(acc) {
+            this.modalTitle = "Редактировать склад";
+            this.id = acc.id;
+            this.nameStock = acc.nameStock;
+        },
+
+        // СОЗДАНИЕ (POST)
+        createClick() {
+            axios.post(`${import.meta.env.VITE_API_URL}/stocks/`, {
+                nameStock: this.nameStock
+            })
+            .then(() => {
+                this.refreshData();
+                this.nameStock = "";
+            })
+            .catch(err => alert("Ошибка при создании: " + JSON.stringify(err.response.data)));
+        },
+
+        // ОБНОВЛЕНИЕ (PUT). ВАЖНО: ID в пути и слеш в конце
+        updateClick() {
+            axios.put(`${import.meta.env.VITE_API_URL}/stocks/${this.id}/`, {
+                nameStock: this.nameStock
+            })
+            .then(() => {
+                this.refreshData();
+            })
+            .catch(err => {
+                console.error("Ошибка PUT:", err.response);
+                alert("Ошибка обновления. Проверьте консоль бэкенда.");
             });
         },
+
+        // Сохраняем ID перед удалением
+        prepareDelete(id) {
+            this.idToDelete = id;
+        },
+
+        // УДАЛЕНИЕ (DELETE). ВАЖНО: ID в пути и слеш в конце
+        confirmDelete() {
+            axios.delete(`${import.meta.env.VITE_API_URL}/stocks/${this.idToDelete}/`)
+            .then(() => {
+                this.refreshData();
+                this.idToDelete = 0;
+            })
+            .catch(err => alert("Ошибка удаления: " + JSON.stringify(err.response.data)));
+        },
+
+        // Фильтрация
         FilterFn() {
             const idF = this.idFilter.toString().toLowerCase().trim();
             const nameF = this.nameStockFilter.toLowerCase().trim();
@@ -139,36 +198,16 @@ export default {
                        el.nameStock.toLowerCase().includes(nameF);
             });
         },
+
+        // Сортировка
         sortResult(prop, asc) {
-            this.stocks = [...this.stocksWithoutFilter].sort((a, b) => {
-                if (asc) return a[prop] > b[prop] ? 1 : -1;
-                return a[prop] < b[prop] ? 1 : -1;
+            this.stocks.sort((a, b) => {
+                if (asc) {
+                    return (a[prop] > b[prop]) ? 1 : ((a[prop] < b[prop]) ? -1 : 0);
+                } else {
+                    return (b[prop] > a[prop]) ? 1 : ((b[prop] < a[prop]) ? -1 : 0);
+                }
             });
-        },
-        addClick() {
-            this.modalTitle = "Добавить склад";
-            this.nameStock = "";
-            this.id = 0;
-        },
-        editClick(acc) {
-            this.modalTitle = "Отредактировать склад";
-            this.id = acc.id;
-            this.nameStock = acc.nameStock;
-        },
-        createClick() {
-            axios.post(ENDPOINTS.STOCKS, { nameStock: this.nameStock })
-                .then(() => this.refreshData());
-        },
-        updateClick() {
-            axios.put(ENDPOINTS.STOCKS, { id: this.id, nameStock: this.nameStock })
-                .then(() => this.refreshData());
-        },
-        prepareDelete(id) {
-            this.idToDelete = id;
-        },
-        confirmDelete() {
-            axios.delete(ENDPOINTS.STOCKS + "/" + this.idToDelete)
-                .then(() => this.refreshData());
         }
     },
     mounted() {
@@ -178,6 +217,6 @@ export default {
 </script>
 
 <style scoped>
-.btn-xs { font-size: 0.65rem; }
-th { vertical-align: top; }
+.btn-xs { font-size: 0.7rem; line-height: 1; }
+.table th { vertical-align: top; }
 </style>

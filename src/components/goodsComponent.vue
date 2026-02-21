@@ -8,7 +8,7 @@
         </button>
     </div>
 
-    <!-- Таблица с фильтрами и стрелками в один ряд -->
+    <!-- Таблица с фильтрами и сортировкой -->
     <div class="table-responsive shadow-sm rounded">
         <table class="table table-striped table-hover align-middle border">
             <thead class="table-dark">
@@ -41,14 +41,12 @@
                     <td>{{acc.id}}</td>
                     <td>{{acc.nameGood}}</td>
                     <td class="text-center">
-                        <!-- Кнопка редактирования -->
                         <button type="button" class="btn btn-light shadow-sm me-2" data-bs-toggle="modal" data-bs-target="#editModal" @click="editClick(acc)">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                                 <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
                                 <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
                             </svg>
                         </button>
-                        <!-- Кнопка удаления -->
                         <button type="button" class="btn btn-light shadow-sm" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal" @click="prepareDelete(acc.id)">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
                                 <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
@@ -65,7 +63,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title text-white">{{modalTitle}}</h5>
+                    <h5 class="modal-title">{{modalTitle}}</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
@@ -106,7 +104,6 @@
 </template>
 
 <script>
-import { ENDPOINTS } from '../config';
 import axios from "axios";
 
 export default {
@@ -125,10 +122,55 @@ export default {
     },
     methods: {
         refreshData() {
-            axios.get(ENDPOINTS.GOODS).then((res) => {
-                this.goods = res.data;
-                this.goodsWithoutFilter = res.data;
-            });
+            // Используем VITE_API_URL и добавляем слэш в конце
+            axios.get(`${import.meta.env.VITE_API_URL}/goods/`)
+                .then((res) => {
+                    this.goods = res.data;
+                    this.goodsWithoutFilter = res.data;
+                })
+                .catch(err => console.error("Ошибка загрузки товаров:", err));
+        },
+        addClick() {
+            this.modalTitle = "Добавить новый товар";
+            this.id = 0;
+            this.nameGood = "";
+        },
+        editClick(acc) {
+            this.modalTitle = "Редактировать товар";
+            this.id = acc.id;
+            this.nameGood = acc.nameGood;
+        },
+        createClick() {
+            axios.post(`${import.meta.env.VITE_API_URL}/goods/`, {
+                nameGood: this.nameGood
+            })
+            .then(() => {
+                this.refreshData();
+                this.nameGood = "";
+            })
+            .catch(err => alert("Ошибка создания: " + JSON.stringify(err.response.data)));
+        },
+        updateClick() {
+            // ВАЖНО: ID в пути и закрывающий слэш
+            axios.put(`${import.meta.env.VITE_API_URL}/goods/${this.id}/`, {
+                nameGood: this.nameGood
+            })
+            .then(() => {
+                this.refreshData();
+            })
+            .catch(err => console.error("Ошибка обновления:", err));
+        },
+        prepareDelete(id) {
+            this.idToDelete = id;
+        },
+        confirmDelete() {
+            // ВАЖНО: ID в пути и закрывающий слэш
+            axios.delete(`${import.meta.env.VITE_API_URL}/goods/${this.idToDelete}/`)
+            .then(() => {
+                this.refreshData();
+                this.idToDelete = 0;
+            })
+            .catch(err => console.error("Ошибка удаления:", err));
         },
         FilterFn() {
             const idF = this.idFilter.toString().toLowerCase().trim();
@@ -140,35 +182,13 @@ export default {
             });
         },
         sortResult(prop, asc) {
-            this.goods = [...this.goodsWithoutFilter].sort((a, b) => {
-                if (asc) return a[prop] > b[prop] ? 1 : -1;
-                return a[prop] < b[prop] ? 1 : -1;
+            this.goods.sort((a, b) => {
+                if (asc) {
+                    return (a[prop] > b[prop]) ? 1 : ((a[prop] < b[prop]) ? -1 : 0);
+                } else {
+                    return (b[prop] > a[prop]) ? 1 : ((b[prop] < a[prop]) ? -1 : 0);
+                }
             });
-        },
-        addClick() {
-            this.modalTitle = "Добавить товар";
-            this.nameGood = "";
-            this.id = 0;
-        },
-        editClick(acc) {
-            this.modalTitle = "Редактировать товар";
-            this.id = acc.id;
-            this.nameGood = acc.nameGood;
-        },
-        createClick() {
-            axios.post(ENDPOINTS.GOODS, { nameGood: this.nameGood })
-                .then(() => this.refreshData());
-        },
-        updateClick() {
-            axios.put(ENDPOINTS.GOODS, { id: this.id, nameGood: this.nameGood })
-                .then(() => this.refreshData());
-        },
-        prepareDelete(id) {
-            this.idToDelete = id;
-        },
-        confirmDelete() {
-            axios.delete(ENDPOINTS.GOODS + "/" + this.idToDelete)
-                .then(() => this.refreshData());
         }
     },
     mounted() {
@@ -178,6 +198,5 @@ export default {
 </script>
 
 <style scoped>
-.btn-xs { font-size: 0.65rem; }
-th { vertical-align: top; }
+.btn-xs { font-size: 0.7rem; line-height: 1; }
 </style>

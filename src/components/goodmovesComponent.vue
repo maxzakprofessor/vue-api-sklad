@@ -1,6 +1,6 @@
 <template>
 <div class="container-fluid mt-3">
-    <!-- Заголовок и кнопка -->
+    <!-- Заголовок -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="text-primary fw-bold"><i class="bi bi-arrow-left-right"></i> Перемещение товаров</h4>
         <button type="button" class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#editModal" @click="addClick()">
@@ -8,55 +8,16 @@
         </button>
     </div>
 
-    <!-- Таблица с фильтрами и стрелками -->
+    <!-- Таблица -->
     <div class="table-responsive shadow-sm rounded">
         <table class="table table-striped table-hover align-middle border">
             <thead class="table-dark">
                 <tr>
-                    <th style="min-width: 200px;">
-                        <div class="d-flex align-items-center mb-1">
-                            <input class="form-control form-control-sm me-2 shadow-none" v-model="nameStockFromFilter" v-on:keyup="FilterFn()" placeholder="🔍">
-                            <div class="btn-group-vertical">
-                                <button type="button" class="btn btn-dark btn-xs p-0 px-1" @click="sortResult('nameStockFrom', true)">▲</button>
-                                <button type="button" class="btn btn-dark btn-xs p-0 px-1" @click="sortResult('nameStockFrom', false)">▼</button>
-                            </div>
-                        </div>
-                        <small>Откуда</small>
-                    </th>
-                    <th style="min-width: 200px;">
-                        <div class="d-flex align-items-center mb-1">
-                            <input class="form-control form-control-sm me-2 shadow-none" v-model="nameStockTowhereFilter" v-on:keyup="FilterFn()" placeholder="🔍">
-                            <div class="btn-group-vertical">
-                                <button type="button" class="btn btn-dark btn-xs p-0 px-1" @click="sortResult('nameStockTowhere', true)">▲</button>
-                                <button type="button" class="btn btn-dark btn-xs p-0 px-1" @click="sortResult('nameStockTowhere', false)">▼</button>
-                            </div>
-                        </div>
-                        <small>Куда</small>
-                    </th>
-                    <th style="min-width: 200px;">
-                        <div class="d-flex align-items-center mb-1">
-                            <input class="form-control form-control-sm me-2 shadow-none" v-model="nameGoodFilter" v-on:keyup="FilterFn()" placeholder="🔍">
-                            <div class="btn-group-vertical">
-                                <button type="button" class="btn btn-dark btn-xs p-0 px-1" @click="sortResult('nameGood', true)">▲</button>
-                                <button type="button" class="btn btn-dark btn-xs p-0 px-1" @click="sortResult('nameGood', false)">▼</button>
-                            </div>
-                        </div>
-                        <small>Товар</small>
-                    </th>
-                    <th class="text-center">
-                        <div class="mb-1">
-                            <button type="button" class="btn btn-dark btn-xs p-0 px-1" @click="sortResult('qty', true)">▲</button>
-                            <button type="button" class="btn btn-dark btn-xs p-0 px-1" @click="sortResult('qty', false)">▼</button>
-                        </div>
-                        <small>Кол-во</small>
-                    </th>
-                    <th class="text-center">
-                        <div class="mb-1">
-                            <button type="button" class="btn btn-dark btn-xs p-0 px-1" @click="sortResult('datetime', true)">▲</button>
-                            <button type="button" class="btn btn-dark btn-xs p-0 px-1" @click="sortResult('datetime', false)">▼</button>
-                        </div>
-                        <small>Дата</small>
-                    </th>
+                    <th style="min-width: 200px;">Откуда</th>
+                    <th style="min-width: 200px;">Куда</th>
+                    <th style="min-width: 200px;">Товар</th>
+                    <th class="text-center">Кол-во</th>
+                    <th class="text-center">Дата</th>
                     <th class="text-center">Действия</th>
                 </tr>
             </thead>
@@ -80,7 +41,7 @@
         </table>
     </div>
 
-    <!-- ОКНО РЕДАКТИРОВАНИЯ -->
+    <!-- МОДАЛЬНОЕ ОКНО -->
     <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
@@ -120,21 +81,20 @@
                         <input type="time" class="form-control" v-model="timeInp">
                     </div>
                     <div class="d-grid gap-2">
-                        <button @click="createClick()" v-if="id==0" class="btn btn-success" data-bs-dismiss="modal">Создать</button>
-                        <button @click="updateClick()" v-if="id!=0" class="btn btn-warning text-white" data-bs-dismiss="modal">Обновить</button>
+                        <button @click="createClick()" v-if="id==0" class="btn btn-success btn-lg" data-bs-dismiss="modal">Создать</button>
+                        <button @click="updateClick()" v-if="id!=0" class="btn btn-warning btn-lg text-white" data-bs-dismiss="modal">Обновить</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ОКНО УДАЛЕНИЯ -->
+    <!-- УДАЛЕНИЕ -->
     <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-sm modal-dialog-centered">
             <div class="modal-content border-0 shadow">
                 <div class="modal-body text-center p-4">
-                    <div class="text-danger mb-3"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-exclamation-triangle" viewBox="0 0 16 16"><path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.16.16 0 0 1-.054.06.11.11 0 0 1-.066.017H1.146a.11.11 0 0 1-.066-.017.16.16 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073a.15.15 0 0 1 .054-.057zm1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566z"/><path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995z"/></svg></div>
-                    <h5 class="fw-bold">Удалить?</h5>
+                    <h5 class="fw-bold">Удалить запись?</h5>
                     <div class="d-flex justify-content-center gap-2 mt-4">
                         <button class="btn btn-light px-3" data-bs-dismiss="modal">Нет</button>
                         <button class="btn btn-danger px-3" @click="confirmDelete" data-bs-dismiss="modal">Да</button>
@@ -147,7 +107,6 @@
 </template>
 
 <script>
-import { ENDPOINTS } from '../config';
 import axios from "axios";
 
 export default {
@@ -155,84 +114,90 @@ export default {
     data() {
         return {
             goodmoves: [],
-            goodmovesWithoutFilter: [],
-            goods: [],
             stocks: [],
+            goods: [],
             modalTitle: "",
-            id: 0,
             nameStockFrom: "",
             nameStockTowhere: "",
             nameGood: "",
             qty: 0,
             dateInp: "",
             timeInp: "",
-            nameStockFromFilter: "",
-            nameStockTowhereFilter: "",
-            nameGoodFilter: "",
+            id: 0,
             idToDelete: 0
         }
     },
     methods: {
         refreshData() {
-            axios.get(ENDPOINTS.GOODMOVES).then(res => {
-                this.goodmoves = res.data;
-                this.goodmovesWithoutFilter = res.data;
-            });
-            axios.get(ENDPOINTS.STOCKS).then(res => { this.stocks = res.data; });
-            axios.get(ENDPOINTS.GOODS).then(res => { this.goods = res.data; });
+            const api = import.meta.env.VITE_API_URL;
+            axios.get(`${api}/goodmoves/`).then(res => { this.goodmoves = res.data; });
+            axios.get(`${api}/stocks/`).then(res => { this.stocks = res.data; });
+            axios.get(`${api}/goods/`).then(res => { this.goods = res.data; });
         },
-        FilterFn() {
-            const sFromF = this.nameStockFromFilter.toLowerCase().trim();
-            const sToF = this.nameStockTowhereFilter.toLowerCase().trim();
-            const gF = this.nameGoodFilter.toLowerCase().trim();
-            this.goodmoves = this.goodmovesWithoutFilter.filter(el => {
-                return el.nameStockFrom.toLowerCase().includes(sFromF) &&
-                       el.nameStockTowhere.toLowerCase().includes(sToF) &&
-                       el.nameGood.toLowerCase().includes(gF);
-            });
-        },
-        sortResult(prop, asc) {
-            this.goodmoves = [...this.goodmovesWithoutFilter].sort((a, b) => {
-                if (asc) return a[prop] > b[prop] ? 1 : -1;
-                return a[prop] < b[prop] ? 1 : -1;
-            });
-        },
+
         addClick() {
-            const now = new Date();
-            this.dateInp = now.toISOString().substring(0, 10);
-            this.timeInp = now.toTimeString().substring(0, 5);
             this.modalTitle = "Новое перемещение";
-            this.id = 0; this.nameStockFrom = ""; this.nameStockTowhere = ""; this.nameGood = ""; this.qty = 0;
+            this.id = 0;
+            this.nameStockFrom = "";
+            this.nameStockTowhere = "";
+            this.nameGood = "";
+            this.qty = 1;
+            const now = new Date();
+            this.dateInp = now.toLocaleDateString('en-CA');
+            this.timeInp = now.toTimeString().slice(0, 5);
         },
+
         editClick(acc) {
             this.modalTitle = "Редактировать перемещение";
-            this.id = acc.id; this.nameStockFrom = acc.nameStockFrom; this.nameStockTowhere = acc.nameStockTowhere;
-            this.nameGood = acc.nameGood; this.qty = acc.qty;
-            this.dateInp = acc.datetime.substring(0, 10);
-            this.timeInp = acc.datetime.substring(11, 16);
+            this.id = acc.id;
+            this.nameStockFrom = acc.nameStockFrom;
+            this.nameStockTowhere = acc.nameStockTowhere;
+            this.nameGood = acc.nameGood;
+            this.qty = acc.qty;
+            if (acc.datetime) {
+                this.dateInp = acc.datetime.substring(0, 10);
+                this.timeInp = acc.datetime.substring(11, 16);
+            }
         },
+
         createClick() {
-            axios.post(ENDPOINTS.GOODMOVES, {
-                nameStockFrom: this.nameStockFrom, nameStockTowhere: this.nameStockTowhere,
-                nameGood: this.nameGood, qty: this.qty, datetime: this.dateInp + 'T' + this.timeInp + ':00Z'
-            }).then(() => this.refreshData());
+            const fromObj = this.stocks.find(s => s.nameStock === this.nameStockFrom);
+            const toObj = this.stocks.find(s => s.nameStock === this.nameStockTowhere);
+            const goodObj = this.goods.find(g => g.nameGood === this.nameGood);
+
+            axios.post(`${import.meta.env.VITE_API_URL}/goodmoves/`, {
+                stockFrom: fromObj ? fromObj.id : null,
+                stockTo: toObj ? toObj.id : null,
+                good: goodObj ? goodObj.id : null,
+                qty: this.qty,
+                datetime: `${this.dateInp}T${this.timeInp}:00Z`
+            })
+            .then(() => this.refreshData())
+            .catch(err => alert("Ошибка: " + JSON.stringify(err.response.data)));
         },
+
         updateClick() {
-            axios.put(ENDPOINTS.GOODMOVES, {
-                id: this.id, nameStockFrom: this.nameStockFrom, nameStockTowhere: this.nameStockTowhere,
-                nameGood: this.nameGood, qty: this.qty, datetime: this.dateInp + 'T' + this.timeInp + ':00Z'
-            }).then(() => this.refreshData());
+            const fromObj = this.stocks.find(s => s.nameStock === this.nameStockFrom);
+            const toObj = this.stocks.find(s => s.nameStock === this.nameStockTowhere);
+            const goodObj = this.goods.find(g => g.nameGood === this.nameGood);
+
+            axios.put(`${import.meta.env.VITE_API_URL}/goodmoves/${this.id}/`, {
+                stockFrom: fromObj ? fromObj.id : null,
+                stockTo: toObj ? toObj.id : null,
+                good: goodObj ? goodObj.id : null,
+                qty: this.qty,
+                datetime: `${this.dateInp}T${this.timeInp}:00Z`
+            })
+            .then(() => this.refreshData())
+            .catch(err => console.error(err));
         },
+
         prepareDelete(id) { this.idToDelete = id; },
         confirmDelete() {
-            axios.delete(ENDPOINTS.GOODMOVES + "/" + this.idToDelete).then(() => this.refreshData());
+            axios.delete(`${import.meta.env.VITE_API_URL}/goodmoves/${this.idToDelete}/`)
+                .then(() => this.refreshData());
         }
     },
     mounted() { this.refreshData(); }
 }
 </script>
-
-<style scoped>
-.btn-xs { font-size: 0.65rem; }
-th { vertical-align: top; }
-</style>

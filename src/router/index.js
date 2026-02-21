@@ -7,8 +7,15 @@ import goodrestsComponent from '../components/goodrestsComponent.vue'
 import AboutView from '../views/AboutView.vue'
 import LoginComponent from '../components/LoginComponent.vue'
 import UsersComponent from '../components/UsersComponent.vue'
+import Dashboard from '../components/Dashboard.vue'
 
 const routes = [
+    {
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: Dashboard,
+    meta: { requiresAuth: true } // Если у вас настроена защита авторизацией
+  },
   {
     path: '/login',
     name: 'Login',
